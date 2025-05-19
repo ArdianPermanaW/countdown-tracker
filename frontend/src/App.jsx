@@ -1,0 +1,78 @@
+import { useState,useEffect  } from "react";
+import "./app.css"
+
+export default function CountdownApp() {
+  const [events, setEvents] = useState([]);
+  const [title, setTitle] = useState("");
+  const [date, setDate] = useState("");
+
+  useEffect(() => {
+    fetch("/data.json")
+      .then((res) => res.json())
+      .then((data) => setEvents(data))
+      .catch((err) => console.error("Failed to load JSON:", err));
+  }, []);
+
+  const addCountdown = () => {    
+    if (!title || !date) return;
+    setEvents([...events, { title, date }]);
+    setTitle("");
+    setDate("");
+  };
+
+  const calculateDaysLeft = (targetDate) => {
+    const now = new Date();
+    const target = new Date(targetDate);
+    const diffTime = target - now;
+    return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  };
+
+  return (
+    <div className="min-h-screen min-w-screen  bg-gray-900 p-6 text-center">
+      <h1 className="text-3xl font-bold mb-6">📆 Countdown Tracker</h1>
+
+      <div className="flex justify-center gap-4 mb-6">
+        <input
+          type="text"
+          placeholder="Event Title"
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          className="border p-2 rounded"
+        />
+        <input
+          type="date"
+          value={date}
+          onChange={(e) => setDate(e.target.value)}
+          className="border p-2 rounded"
+        />
+        <button
+          onClick={addCountdown}
+          className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+        >
+          Add
+        </button>
+      </div>
+
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        {events.map((event, index) => {
+          const daysLeft = calculateDaysLeft(event.date);
+          return (
+            <div key={index} className="bg-gray-700 shadow-md p-4 rounded">
+              <h2 className="text-xl font-semibold">{event.title}</h2>
+              <p className="text-gray-400">
+                {daysLeft > 0
+                  ? `${daysLeft} day(s) left`
+                  : "Date has passed!"}
+              </p>
+              <p className="text-sm text-gray-500">{event.date}</p>
+            </div>
+          );
+        })}
+      </div>
+
+      <h1 className="text-white p5 font-semibold m-10">
+        "The only path is forward"
+      </h1>
+    </div>
+  );
+}

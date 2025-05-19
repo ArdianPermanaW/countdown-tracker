@@ -1,4 +1,5 @@
 import { useState,useEffect  } from "react";
+import api from "./api";
 import "./app.css"
 
 export default function CountdownApp() {
@@ -7,17 +8,23 @@ export default function CountdownApp() {
   const [date, setDate] = useState("");
 
   useEffect(() => {
-    fetch("/data.json")
-      .then((res) => res.json())
-      .then((data) => setEvents(data))
-      .catch((err) => console.error("Failed to load JSON:", err));
-  }, []);
+  api.get("/")
+    .then((res) => setEvents(res.data))
+    .catch((err) => console.error("Failed to fetch events:", err));
+}, []);
 
   const addCountdown = () => {    
     if (!title || !date) return;
-    setEvents([...events, { title, date }]);
-    setTitle("");
-    setDate("");
+
+    const newEvent = { title, date };
+
+    api.post("/", newEvent)
+      .then((res) => {
+        setEvents([...events, res.data]); // assume backend returns the saved event
+        setTitle("");
+        setDate("");
+      })
+      .catch((err) => console.error("Failed to save event:", err));
   };
 
   const calculateDaysLeft = (targetDate) => {

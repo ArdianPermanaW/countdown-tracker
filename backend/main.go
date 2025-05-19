@@ -9,6 +9,7 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
+	"github.com/go-chi/cors"
 )
 
 type Item struct {
@@ -169,13 +170,21 @@ func main() {
 	r.Use(middleware.Logger)
 	r.Use(middleware.Recoverer)
 	r.Use(middleware.AllowContentType("application/json"))
+	r.Use(cors.Handler(cors.Options{
+		AllowedOrigins:   []string{"http://localhost:5173"}, //frontend URL
+		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
+		ExposedHeaders:   []string{"Link"},
+		AllowCredentials: true,
+		MaxAge:           300, // Maximum value not ignored by any of major browsers
+	}))
 
 	// Routes
-	r.Route("/api/items", func(r chi.Router) {
-		r.Get("/", getAllItems)       // GET /api/items
-		r.Post("/", createItem)       // POST /api/items
-		r.Put("/{id}", updateItem)    // PUT /api/items/123
-		r.Delete("/{id}", deleteItem) // DELETE /api/items/123
+	r.Route("/api/events", func(r chi.Router) {
+		r.Get("/", getAllItems)       // GET /api/events
+		r.Post("/", createItem)       // POST /api/events
+		r.Put("/{id}", updateItem)    // PUT /api/events/123
+		r.Delete("/{id}", deleteItem) // DELETE /api/events/123
 	})
 
 	log.Println("Server running on http://localhost:8080")

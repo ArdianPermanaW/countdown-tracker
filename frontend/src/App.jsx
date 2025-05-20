@@ -34,6 +34,14 @@ export default function CountdownApp() {
     return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
   };
 
+  const deleteCountdown = (id) => {
+    api.delete(`/${id}`)
+      .then(() => {
+        setEvents(events.filter((event) => event.id !== id));
+      })
+      .catch((err) => console.error("Failed to delete event:", err));
+  };
+  
   return (
     <div className="min-h-screen min-w-screen  bg-gray-900 p-6 text-center">
       <h1 className="text-3xl font-bold mb-6">📆 Countdown Tracker</h1>
@@ -72,6 +80,12 @@ export default function CountdownApp() {
                   : "Date has passed!"}
               </p>
               <p className="text-sm text-gray-500">{event.date}</p>
+              <button
+                onClick={() => deleteCountdown(event.id)}
+                className="mt-2 text-white px-3 py-1 rounded "
+              >
+                Delete
+              </button>
             </div>
           );
         })}
